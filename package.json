@@ -1,5 +1,5 @@
 {
-  "name": "bar-service-infrastructure",
+  "name": "{TEMPLATE_SERVICE_HYPHEN_NAME}-service-infrastructure",
   "version": "1.0.0",
   "description": "Deploying a local docker image to an application load balanced fargate cluster",
   "private": true,
