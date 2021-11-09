@@ -8,49 +8,29 @@ import {ValidationMethod} from "@aws-cdk/aws-certificatemanager";
 import {ApplicationProtocol, ApplicationProtocolVersion} from "@aws-cdk/aws-elasticloadbalancingv2";
 
 const route53 = require('@aws-cdk/aws-route53')
-// const alias = require('@aws-cdk/aws-route53-targets')
-// import {DockerImageAsset} from "@aws-cdk/aws-ecr-assets";
-// import { join } from "path";
 
-
-class BarServiceRepository extends cdk.Stack {
+class {TEMPLATE_SERVICE_NAME}ServiceRepository extends cdk.Stack {
   public readonly repository: ecr.IRepository;
 
   constructor(scope: cdk.App, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
     // Create ECR repository
-    this.repository = new ecr.Repository(this, 'bar-service', {
-      repositoryName: 'bar-service',
+    this.repository = new ecr.Repository(this, '{TEMPLATE_SERVICE_HYPHEN_NAME}-service', {
+      repositoryName: '{TEMPLATE_SERVICE_HYPHEN_NAME}-service',
     })
-
-    /***
-     *  The below code isn't possible today as CDK doesn't support creating
-     *  a new container and pushing it to a custom repository created by us.
-     *  DockerImageAsset as of Oct 2021 creates a new container and pushes
-     *  only to a predefined cdk-assets repository managed by CDK internally.
-     *
-     *  Details: https://github.com/aws/aws-cdk/issues/12597
-     */
-    // TODO: Re-enable functionality to build and push container using CDK
-    /*
-    // Create a docker image asset in the above ECR repository
-    const image = new DockerImageAsset(this, "BarServiceImage", {
-      directory:  join(__dirname, "..", "bar-service-kotlin-server"),
-    });
-    */
   }
 }
 
-interface BarServiceRepositoryProps extends cdk.StackProps {
+interface {TEMPLATE_SERVICE_NAME}ServiceRepositoryProps extends cdk.StackProps {
   readonly repository: ecr.IRepository;
 }
 
-class BarServiceFargate extends cdk.Stack {
-  constructor(scope: cdk.App, id: string, props: BarServiceRepositoryProps) {
+class {TEMPLATE_SERVICE_NAME}ServiceFargate extends cdk.Stack {
+  constructor(scope: cdk.App, id: string, props: {TEMPLATE_SERVICE_NAME}ServiceRepositoryProps) {
     super(scope, id, props);
 
     const zoneName = 'hypto.co.in';
-    const domainName = 'hws.bar.hypto.co.in';
+    const domainName = 'hws.{TEMPLATE_SERVICE_HYPHEN_NAME}.hypto.co.in';
 
     /*
      We try to import  hosted zone from attributes of the Hypto staging account.
@@ -65,15 +45,8 @@ class BarServiceFargate extends cdk.Stack {
 
     // Create VPC and Fargate Cluster
     // NOTE: Limit AZs to avoid reaching resource quotas
-    const vpc = new ec2.Vpc(this, 'BarServiceVpc', { maxAzs: 2 });
-    const cluster = new ecs.Cluster(this, 'BarServiceCluster', { vpc });
-    // const grpcSg = new ec2.SecurityGroup(this, 'grpc-security-group', {
-    //   vpc,
-    //   allowAllOutbound: true,
-    //   description: 'GRPC Security Group to allow inbound access on port 50051'
-    // });
-    //
-    // grpcSg.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(50051), 'gRPC request frm anywhere');
+    const vpc = new ec2.Vpc(this, '{TEMPLATE_SERVICE_NAME}ServiceVpc', { maxAzs: 2 });
+    const cluster = new ecs.Cluster(this, '{TEMPLATE_SERVICE_NAME}ServiceCluster', { vpc });
 
     const certificate = new certificateManager.Certificate(this, 'HyptoCertificate', {
       domainName,
@@ -81,9 +54,8 @@ class BarServiceFargate extends cdk.Stack {
     });
 
     // Instantiate Fargate Service with an application load balancer
-    new ecs_patterns.ApplicationLoadBalancedFargateService(this, "BarService", {
+    new ecs_patterns.ApplicationLoadBalancedFargateService(this, "{TEMPLATE_SERVICE_NAME}Service", {
       cluster,
-      // securityGroups: [grpcSg],
       protocol: ApplicationProtocol.HTTPS,
       listenerPort: 50051,
       domainName,
@@ -96,19 +68,13 @@ class BarServiceFargate extends cdk.Stack {
         containerPort: 50051
       },
     });
-
-    // new route53.ARecord(this, 'AliasRecord', {
-    //   zone: domainZone,
-    //   target: route53.RecordTarget.fromAlias(new alias.LoadBalancerTarget(fargateAlbService.loadBalancer)),
-    //   recordName: domainName
-    // });
   }
 }
 
 const app = new cdk.App();
 
-const repositoryStack = new BarServiceRepository(app, 'repo')
-new BarServiceFargate(app, 'service', {
+const repositoryStack = new {TEMPLATE_SERVICE_NAME}ServiceRepository(app, 'repo')
+new {TEMPLATE_SERVICE_NAME}ServiceFargate(app, 'service', {
   repository: repositoryStack.repository
 })
 

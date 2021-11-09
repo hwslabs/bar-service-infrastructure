@@ -4,3 +4,4 @@ cdk.out
 node_modules
 *.js
 package-lock.json
+.tmp
