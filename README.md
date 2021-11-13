@@ -1,21 +1,26 @@
 # Bar Service Infrastructure
 
-![](logo/hypto_grpc_kotlin.png)
+![](logo/hypto_cdk.png)
 
 ## Overview
 
-AWS CDK Infrastructure package to deploy the ECR repository that holds the server container 
-and actual infrastructure that runs the bar service server remotely on an application load 
-balanced ECS Fargate service
+**Bar Service Infrastructure** using AWS and CDK. For details, see the [project on github](https://github.com/hwslabs/bar-service-infrastructure).
 
-- **Bar Service Infrastructure** using AWS and CDK. For details, see the [project on github](https://github.com/hwslabs/bar-service-infrastructure).
+AWS CDK Infrastructure package that creates:
+1) An ECS cluster in a multi-AZ VPC
+2) An application load balanced Fargate web-service that runs on the above ECS Cluster 
+3) A CodeBuild spec that builds the web-service sources from Github and pushes to ECR repo
+4) A CodePipeline pipeline with stages to build and deploy changes to the web-service 
 
 ## File organization
 
 The infra sources are organized into the following files:
 
 - [package.json](package.json): Package dependecies for npm 
-- [index.ts](index.ts): CDK implementation in typescript
+- [webServiceCluster.ts](webServiceCluster.ts): ECS Cluster construct within a dual AZ VPC
+- [webservice.ts](webService.ts): WebService construct that defines an application load balanced fargate service
+- [webServicePipeline.ts](webServicePipeline.ts): CodePipeline construct with CodeBuild from Github source
+- [webServiceStack.ts](webServiceStack.ts): Full web service stack that creates a cluster, web-service and a pipeline
 
 ## Set up and deploy the resources from macOS
 
