@@ -4,6 +4,7 @@
   "description": "Deploying a local docker image to an application load balanced fargate cluster",
   "private": true,
   "scripts": {
+    "build": "tsc",
     "cdk": "cdk",
     "clean": "rm -rf node_modules/ cdk.out cdk.context.json index.js package-lock.json",
     "clean-build": "npm run clean && npm install && npm run build"
