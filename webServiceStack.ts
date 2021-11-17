@@ -7,13 +7,17 @@ class WebServiceStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
-    // TODO: name the cluster better
-    const cluster = new WebServiceCluster(this, 'HyptoCluster');
+    const cluster = new WebServiceCluster(this, 'Cluster');
     const webService = new WebService(this, 'WebService', { cluster });
     new WebServicePipeline(this, 'WebServicePipeline', { webService });
   }
 }
 
 const app = new App();
-new WebServiceStack(app, 'BarServiceStack');
+new WebServiceStack(app, 'BarServiceStack', {
+  env: {
+    account: process.env.CDK_DEFAULT_ACCOUNT,
+    region: process.env.CDK_DEFAULT_REGION,
+  }
+});
 app.synth();

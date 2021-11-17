@@ -10,30 +10,19 @@ class WebServiceCluster extends Construct {
     constructor(scope: Construct, id: string) {
         super(scope, id);
 
-        /*
-        This is a clear HARDCODE!!
-        TODO: Make this more generic coming from a config.
-        */
-        const zoneName = 'hypto.co.in';
+        const zoneName = "hypto.co.in"
 
-        this.domainZone = HostedZone.fromHostedZoneAttributes(this, 'StagingZone', {
-            zoneName,
-            /*
-            This is a clear HARDCODE!!
-            TODO: Make this more generic coming from a config.
-            */
-            hostedZoneId: 'Z30STQ6IYSMMOI',
-        });
+        this.domainZone = HostedZone.fromLookup(this, 'StagingZone', { domainName : zoneName });
 
         // Create VPC and ECS Cluster
         // NOTE: Limit AZs to avoid reaching resource quotas
-        const vpc = new Vpc(this, 'BarServiceVpc', { maxAzs: 2 });
-        this.ecsCluster = new EcsCluster(this, 'BarServiceCluster', { vpc });
+        const vpc = new Vpc(this, 'Vpc', { maxAzs: 2 });
+        this.ecsCluster = new EcsCluster(this, 'Cluster', { vpc });
         this.output();
     }
 
     output() {
-        new CfnOutput(this, 'BarService_ECSCluster_ARN', {value: this.ecsCluster.clusterArn});
+        new CfnOutput(this, 'ECSCluster_ARN', {value: this.ecsCluster.clusterArn});
     }
 }
 

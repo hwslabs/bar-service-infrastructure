@@ -2,10 +2,10 @@ import {CfnOutput, Construct, Duration} from '@aws-cdk/core';
 import {Cluster as EcsCluster, ContainerImage, IBaseService} from "@aws-cdk/aws-ecs";
 import {WebServiceCluster} from './webServiceCluster';
 import {ApplicationProtocol, ApplicationProtocolVersion} from "@aws-cdk/aws-elasticloadbalancingv2";
-import {Certificate, ValidationMethod} from "@aws-cdk/aws-certificatemanager";
 import {IHostedZone} from "@aws-cdk/aws-route53";
 import {ApplicationLoadBalancedFargateService} from "@aws-cdk/aws-ecs-patterns";
 import {Repository} from "@aws-cdk/aws-ecr";
+import {DnsValidatedCertificate} from "@aws-cdk/aws-certificatemanager";
 
 interface WebServiceProps {
     readonly cluster: WebServiceCluster;
@@ -32,15 +32,11 @@ class WebService extends Construct {
     }
 
     private createService(cluster: EcsCluster, domainZone: IHostedZone) {
-        /*
-        This is a clear HARDCODE!!
-        TODO: Make this more generic coming from a config.
-        */
-        const domainName = 'hws.bar.hypto.co.in';
+        const domainName = `bar.${domainZone.zoneName}`;
 
-        const certificate = new Certificate(this, 'Certificate', {
+        const certificate = new DnsValidatedCertificate(this, 'Certificate', {
             domainName,
-            validationMethod: ValidationMethod.DNS
+            hostedZone: domainZone
         });
 
         // Instantiate Fargate Service with an application load balancer
