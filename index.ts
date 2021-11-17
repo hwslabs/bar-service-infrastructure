@@ -7,6 +7,8 @@ import certificateManager = require('@aws-cdk/aws-certificatemanager');
 import {ValidationMethod} from "@aws-cdk/aws-certificatemanager";
 import {ApplicationProtocol, ApplicationProtocolVersion} from "@aws-cdk/aws-elasticloadbalancingv2";
 import {HostedZone} from "@aws-cdk/aws-route53";
+import {RemovalPolicy} from "@aws-cdk/core";
+import {Environment} from "@aws-cdk/core/lib/environment";
 
 class {TEMPLATE_SERVICE_NAME}ServiceRepository extends cdk.Stack {
   public readonly repository: ecr.IRepository;
@@ -16,12 +18,14 @@ class {TEMPLATE_SERVICE_NAME}ServiceRepository extends cdk.Stack {
     // Create ECR repository
     this.repository = new ecr.Repository(this, '{TEMPLATE_SERVICE_HYPHEN_NAME}-service', {
       repositoryName: '{TEMPLATE_SERVICE_HYPHEN_NAME}-service',
+      removalPolicy: RemovalPolicy.DESTROY
     })
   }
 }
 
 interface {TEMPLATE_SERVICE_NAME}ServiceRepositoryProps extends cdk.StackProps {
   readonly repository: ecr.IRepository;
+  readonly env?: Environment;
 }
 
 class {TEMPLATE_SERVICE_NAME}ServiceFargate extends cdk.Stack {
@@ -62,7 +66,12 @@ class {TEMPLATE_SERVICE_NAME}ServiceFargate extends cdk.Stack {
 
 const app = new cdk.App();
 
-const repositoryStack = new {TEMPLATE_SERVICE_NAME}ServiceRepository(app, 'repo')
+const repositoryStack = new {TEMPLATE_SERVICE_NAME}ServiceRepository(app, 'repo', {
+  env: {
+    account: process.env.CDK_DEFAULT_ACCOUNT,
+        region: process.env.CDK_DEFAULT_REGION
+  }
+})
 new {TEMPLATE_SERVICE_NAME}ServiceFargate(app, 'service', {
   repository: repositoryStack.repository,
   env: {

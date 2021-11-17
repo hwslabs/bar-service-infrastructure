@@ -4,10 +4,8 @@
   "description": "Deploying a local docker image to an application load balanced fargate cluster",
   "private": true,
   "scripts": {
-    "build": "tsc",
-    "watch": "tsc -w",
     "cdk": "cdk",
-    "clean": "rm -rf node_modules/ cdk.out/ index.js package-lock.json",
+    "clean": "rm -rf node_modules/ cdk.out cdk.context.json index.js package-lock.json",
     "clean-build": "npm run clean && npm install && npm run build"
   },
   "author": {
@@ -30,6 +28,7 @@
     "@aws-cdk/aws-ecs-patterns": "^1.129.0",
     "@aws-cdk/core": "^1.129.0",
     "@aws-cdk/aws-route53": "^1.129.0",
-    "@aws-cdk/aws-route53-targets": "^1.129.0"
+    "@aws-cdk/aws-route53-targets": "^1.129.0",
+    "ts-node": "^10.4.0"
   }
 }
