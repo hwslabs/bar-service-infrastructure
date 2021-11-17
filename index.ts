@@ -28,7 +28,7 @@ class {TEMPLATE_SERVICE_NAME}ServiceFargate extends cdk.Stack {
   constructor(scope: cdk.App, id: string, props: {TEMPLATE_SERVICE_NAME}ServiceRepositoryProps) {
     super(scope, id, props);
 
-    const zoneName = '{TEMPLATE_DOMAIN_NAME}';
+    const zoneName = '{TEMPLATE_AWS_ZONE_NAME}';
     const domainName = `{TEMPLATE_SERVICE_HYPHEN_NAME}.${zoneName}`;
     const domainZone = HostedZone.fromLookup(this, 'StagingZone', { domainName: zoneName });
 
