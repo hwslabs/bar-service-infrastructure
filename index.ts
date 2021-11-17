@@ -6,8 +6,7 @@ import cdk = require('@aws-cdk/core');
 import certificateManager = require('@aws-cdk/aws-certificatemanager');
 import {ValidationMethod} from "@aws-cdk/aws-certificatemanager";
 import {ApplicationProtocol, ApplicationProtocolVersion} from "@aws-cdk/aws-elasticloadbalancingv2";
-
-const route53 = require('@aws-cdk/aws-route53')
+import {HostedZone} from "@aws-cdk/aws-route53";
 
 class {TEMPLATE_SERVICE_NAME}ServiceRepository extends cdk.Stack {
   public readonly repository: ecr.IRepository;
@@ -29,19 +28,9 @@ class {TEMPLATE_SERVICE_NAME}ServiceFargate extends cdk.Stack {
   constructor(scope: cdk.App, id: string, props: {TEMPLATE_SERVICE_NAME}ServiceRepositoryProps) {
     super(scope, id, props);
 
-    const zoneName = 'hypto.co.in';
-    const domainName = 'hws.{TEMPLATE_SERVICE_HYPHEN_NAME}.hypto.co.in';
-
-    /*
-     We try to import  hosted zone from attributes of the Hypto staging account.
-
-     This is a clear HARDCODE!!
-     TODO: Make this more generic and working across multiple AWS accounts.
-     */
-    const domainZone = route53.HostedZone.fromHostedZoneAttributes(this, 'StagingZone', {
-      zoneName,
-      hostedZoneId: 'Z30STQ6IYSMMOI',
-    });
+    const zoneName = '{TEMPLATE_DOMAIN_NAME}';
+    const domainName = `{TEMPLATE_SERVICE_HYPHEN_NAME}.${zoneName}`;
+    const domainZone = HostedZone.fromLookup(this, 'StagingZone', { domainName: zoneName });
 
     // Create VPC and Fargate Cluster
     // NOTE: Limit AZs to avoid reaching resource quotas
@@ -75,7 +64,11 @@ const app = new cdk.App();
 
 const repositoryStack = new {TEMPLATE_SERVICE_NAME}ServiceRepository(app, 'repo')
 new {TEMPLATE_SERVICE_NAME}ServiceFargate(app, 'service', {
-  repository: repositoryStack.repository
+  repository: repositoryStack.repository,
+  env: {
+    account: process.env.CDK_DEFAULT_ACCOUNT,
+    region: process.env.CDK_DEFAULT_REGION
+  }
 })
 
 app.synth();
