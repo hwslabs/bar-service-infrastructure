@@ -3,12 +3,11 @@ import ecr = require('@aws-cdk/aws-ecr');
 import ecs = require('@aws-cdk/aws-ecs');
 import ecs_patterns = require('@aws-cdk/aws-ecs-patterns');
 import cdk = require('@aws-cdk/core');
-import certificateManager = require('@aws-cdk/aws-certificatemanager');
-import {ValidationMethod} from "@aws-cdk/aws-certificatemanager";
 import {ApplicationProtocol, ApplicationProtocolVersion} from "@aws-cdk/aws-elasticloadbalancingv2";
 import {HostedZone} from "@aws-cdk/aws-route53";
 import {RemovalPolicy} from "@aws-cdk/core";
 import {Environment} from "@aws-cdk/core/lib/environment";
+import {DnsValidatedCertificate} from "@aws-cdk/aws-certificatemanager";
 
 class {TEMPLATE_SERVICE_NAME}ServiceRepository extends cdk.Stack {
   public readonly repository: ecr.IRepository;
@@ -41,9 +40,9 @@ class {TEMPLATE_SERVICE_NAME}ServiceFargate extends cdk.Stack {
     const vpc = new ec2.Vpc(this, '{TEMPLATE_SERVICE_NAME}ServiceVpc', { maxAzs: 2 });
     const cluster = new ecs.Cluster(this, '{TEMPLATE_SERVICE_NAME}ServiceCluster', { vpc });
 
-    const certificate = new certificateManager.Certificate(this, 'HyptoCertificate', {
+    const certificate = new DnsValidatedCertificate(this, 'Certificate', {
       domainName,
-      validationMethod: ValidationMethod.DNS
+      hostedZone: domainZone
     });
 
     // Instantiate Fargate Service with an application load balancer
@@ -69,7 +68,7 @@ const app = new cdk.App();
 const repositoryStack = new {TEMPLATE_SERVICE_NAME}ServiceRepository(app, 'repo', {
   env: {
     account: process.env.CDK_DEFAULT_ACCOUNT,
-        region: process.env.CDK_DEFAULT_REGION
+    region: process.env.CDK_DEFAULT_REGION
   }
 })
 new {TEMPLATE_SERVICE_NAME}ServiceFargate(app, 'service', {
